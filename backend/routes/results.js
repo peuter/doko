@@ -11,46 +11,26 @@ router.route('/')
     function(req, res) {
 
     var year = new Date(req.body.date).getFullYear();
-    
-    // calculate average
-    var sum = 0;
-    var playerCounter = 0;
-    req.body.players.forEach(function (player) {
-      if (player.points) {
-        playerCounter++;
-        sum+=parseInt(player.points,10);
-      }
-    });
-
-    if (playerCounter === 0) {
-      res.json(true);
-      return;
-    }
-    var avg = Math.ceil(sum/playerCounter);
-
-    if (avg === 0) {
-      res.json(true);
-      return;
-    }
-
-    // apply average to players without points
-    req.body.players.forEach(function (player) {
-      if (!player.points) {
-        player.points = avg;
-      }
-    });
 
     // find players in model
     var promises = [];
     req.body.players.forEach(function (player) {
-      promises.push(
-        model.Player.findOne({
-          where: {
-            nick: player.nick
-          }
-        })
-      );
+      if (player.points) {
+        promises.push(
+          model.Player.findOne({
+            where: {
+              nick: player.nick
+            }
+          })
+        );
+      }
     },this);
+
+    if (promises.length === 0) {
+      // nothing to do
+      res.json({refresh: false});
+      return
+    }
 
     Promise.all(promises).then(function(modelPlayers) {
         model.sequelize.transaction(function(t) {
@@ -118,7 +98,7 @@ router.route('/')
           }
         }).catch(function(err) {
           console.log(err);
-          res.send(err);
+          res.json(err);
         });
 
     });

@@ -8,6 +8,17 @@ export class ResultService {
   private  update: EventEmitter<boolean> = new EventEmitter();
 
   private playerColMapping : Object = {};
+  private playerColorMapping: Object = {
+    Carsten: '#3465A4',
+    Daniel: '#4E9A06',
+    Dennis: '#CC0000',
+    Marc: '#630000',
+    Frank: '#EDD400',
+    Sebastian: '#75505B',
+    Stefan: '#F57900',
+    Steffen: '#204A87',
+    Tobias: '#C17D11'
+  };
 
   resultData : any = [];
   summaryData : Object[] = [{
@@ -18,11 +29,15 @@ export class ResultService {
   playerCols: any = [];
   cache: Object = {};
   summaryCache: Object = {};
+  moneyCache: Object = {};
+  
+  year: number;
   
   constructor(public http: Http, public userData: UserData) {
   }
 
   showYear(year, refresh:boolean = false) {
+    this.year = year;
     if (!this.cache.hasOwnProperty(year) || refresh === true) {
       this.getAll(year);
     } else {
@@ -123,6 +138,7 @@ export class ResultService {
   aggregateResults(year, results) {
     var data = {};
     this.summaryCache[year] = new Array(8);
+    this.moneyCache[year] = new Array(8);
     results.forEach(res => {
       if (!data.hasOwnProperty(res.Appointment.id)) {
         data[res.Appointment.id] = {
@@ -138,8 +154,12 @@ export class ResultService {
       if (!this.summaryCache[year][this.playerColMapping[res.Player.nick]]) {
         this.summaryCache[year][this.playerColMapping[res.Player.nick]] = 0;
       }
+      if (!this.moneyCache[year][this.playerColMapping[res.Player.nick]]) {
+        this.moneyCache[year][this.playerColMapping[res.Player.nick]] = 0;
+      }
       data[res.Appointment.id][res.Player.nick] = res.points;
       this.summaryCache[year][this.playerColMapping[res.Player.nick]] += res.points;
+      this.moneyCache[year][this.playerColMapping[res.Player.nick]] += Math.max(10, Math.ceil(res.points/10));
     }, this);
     this.cache[year] = [];
 
@@ -148,6 +168,67 @@ export class ResultService {
     }
 
     this.showYear(year);
+  }
+
+  /**
+   * Returns data for users/points to create charts
+   */
+  getUserPointsData() {
+    let data = [];
+    for (var i=0, l=this.summaryCache[this.year].length; i<l; i++) {
+      var nick = this.getNickForColumn(i);
+      data.push({
+        value: this.summaryCache[this.year][i],
+        label: nick,
+        color: this.playerColorMapping[nick]
+      });
+    }
+    return data;
+  }
+
+  getUserMoneyData() {
+    let data = [];
+    for (var i=0, l=this.moneyCache[this.year].length; i<l; i++) {
+      var nick = this.getNickForColumn(i);
+      data.push({
+        value: this.moneyCache[this.year][i],
+        label: nick,
+        color: this.playerColorMapping[nick]
+      });
+    }
+    return data;
+  }
+
+  getUserBarData() {
+    let data = {
+      labels: [],
+      datasets: [{
+        label: 'Punkte',
+        fillColor: '#42A5F5',
+        strokeColor: '#1E88E5',
+        data: []
+      }, {
+        label: 'Einzahlungen',
+        fillColor: '#9CCC65',
+        strokeColor: '#7CB342',
+        data: []
+      }]
+    };
+    for (var i=0, l=this.summaryCache[this.year].length; i<l; i++) {
+      var nick = this.getNickForColumn(i);
+      data.labels[i] = nick;
+      data.datasets[0].data[i] = this.summaryCache[this.year][i];
+      data.datasets[1].data[i] = this.moneyCache[this.year][i];
+    }
+    return data;
+  }
+  
+  getNickForColumn(col) {
+    for (var nick in this.playerColMapping) {
+      if (this.playerColMapping[nick] === col) {
+        return nick;
+      }
+    }
   }
 
   emitUpdateEvent() {

@@ -1,0 +1,30 @@
+<ion-navbar *navbar>
+  <ion-title>Charts {{userData.year}}</ion-title>
+</ion-navbar>
+
+<ion-content padding class="charts">
+  <ion-slides pager>
+    <ion-slide>
+      <h3>Punkte/Einzahlungen</h3>
+          <p-barChart [value]="barData" width="300" height="100"
+              [percentageInnerCutout]="25"
+              [responsive]="true">
+          </p-barChart>
+    </ion-slide>
+    <ion-slide>
+      <h3>Punkte</h3>
+          <p-pieChart [value]="pointsData" width="300" height="100"
+              [percentageInnerCutout]="25"
+              [responsive]="true">
+          </p-pieChart>
+    </ion-slide>
+    <ion-slide>
+      <h3>Einzahlungen</h3>
+      <p-pieChart [value]="moneyData" width="300" height="100"
+          [percentageInnerCutout]="25"
+          [responsive]="true"
+          [legendTemplate]="legendTemplate">
+      </p-pieChart>
+    </ion-slide>
+  </ion-slides>
+</ion-content>
