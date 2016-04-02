@@ -17,6 +17,7 @@ export class EditResult {
   public players: Object[] = [];
 
   places: string[] = [];
+  avg: number = 0;
 
   constructor(public resultService: ResultService, public nav: NavController, navParams: NavParams) {
     resultService.playerCols.forEach((player, index) => {
@@ -37,6 +38,19 @@ export class EditResult {
       // init current dte
       this.date = this.getDateString(new Date());
     }
+  }
+
+  pointsChanged(event) {
+
+    var players = 0;
+    var sum = 0;
+    this.players.forEach( p => {
+      if (p['points']) {
+        players++;
+        sum += parseInt(p['points'], 10);
+      }
+    });
+    this.avg = Math.round(sum/players);
   }
 
   getDateString(date) {

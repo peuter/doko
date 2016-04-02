@@ -43,7 +43,11 @@ export class ResultService {
     } else {
       this.resultData = this.cache[year];
       this.summaryCache[year].forEach((sum, index) => {
-        this.summaryData[0]['columns'][index+1] = { footer: sum };
+        let money = this.moneyCache[year][index];
+        if (money) {
+          money = " (" + money + " €)";
+        }
+        this.summaryData[0]['columns'][index+1] = { footer: sum + money };
       });
     }
   }
@@ -157,7 +161,10 @@ export class ResultService {
       if (!this.moneyCache[year][this.playerColMapping[res.Player.nick]]) {
         this.moneyCache[year][this.playerColMapping[res.Player.nick]] = 0;
       }
-      data[res.Appointment.id][res.Player.nick] = res.points;
+      data[res.Appointment.id][res.Player.nick] = {
+        points: res.points,
+        isAvg: res.type
+      };
       this.summaryCache[year][this.playerColMapping[res.Player.nick]] += res.points;
       this.moneyCache[year][this.playerColMapping[res.Player.nick]] += Math.max(10, Math.ceil(res.points/10));
     }, this);

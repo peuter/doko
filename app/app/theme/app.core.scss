@@ -11,6 +11,16 @@
         'primeui-ng-all.min',
         'font-awesome';
 
+.ui-cell-data .avg {
+        color: #BBBBBB;
+}
+.ui-datatable-data tr.ui-widget-content td, .ui-datatable tfoot tr th {
+        text-align: center;
+}
+.ui-datatable tfoot tr th:first-child {
+        text-align: right;
+}
+
 // responsive design for table
 @media (max-width: 35em) {
         .ui-datatable-reflow .ui-datatable-data tr.ui-widget-content td {

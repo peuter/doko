@@ -12,25 +12,46 @@ router.route('/')
 
     var year = new Date(req.body.date).getFullYear();
 
+    // calculate average
+    var sum = 0;
+    var playerCounter = 0;
+    req.body.players.forEach(function (player) {
+      if (player.points) {
+        playerCounter++;
+        sum+=parseInt(player.points,10);
+      }
+    });
+
+    if (playerCounter === 0) {
+      res.json(true);
+      return;
+    }
+    var avg = Math.ceil(sum/playerCounter);
+
+    if (avg === 0) {
+      res.json(true);
+      return;
+    }
+
+    // apply average to players without points
+    req.body.players.forEach(function (player) {
+      if (!player.points) {
+        player.points = avg;
+        player.isAvg = true;
+      }
+    });
+
     // find players in model
     var promises = [];
     req.body.players.forEach(function (player) {
-      if (player.points) {
-        promises.push(
-          model.Player.findOne({
-            where: {
-              nick: player.nick
-            }
-          })
-        );
-      }
+      promises.push(
+        model.Player.findOne({
+          where: {
+            nick: player.nick
+          }
+        })
+      );
     },this);
-
-    if (promises.length === 0) {
-      // nothing to do
-      res.json({refresh: false});
-      return
-    }
 
     Promise.all(promises).then(function(modelPlayers) {
         model.sequelize.transaction(function(t) {
@@ -60,7 +81,8 @@ router.route('/')
                     player_id: player.id
                   },
                   defaults: {
-                    points: req.body.players[index].points
+                    points: req.body.players[index].points,
+                    type: req.body.players[index].type === true
                   },
                   transaction: t
                 })
@@ -81,6 +103,7 @@ router.route('/')
                   req.body.players.some(function(p) {
                     if (p.nick === points.Player.nick) {
                       points.points = p.points;
+                      points.type = p.isAvg === true;
                       return true;
                     }
                   });

@@ -3,7 +3,7 @@
 </ion-navbar>
 
 <ion-content padding class="editresult">
-  test
+  <h3>Schnitt: {{avg}}</h3>
 
   <ion-item>
     <ion-label stacked>Datum</ion-label>
@@ -17,7 +17,7 @@
   </ion-item>
   <ion-item *ngFor="#player of players">
     <ion-label floating>{{player.nick}}</ion-label>
-    <ion-input type="number" [(ngModel)]="player.points"></ion-input>
+    <ion-input type="number" [(ngModel)]="player.points" (keyup)="pointsChanged($event)"></ion-input>
   </ion-item>
   <button *ngIf="id" round (click)="delete()">
     <ion-icon name="trash"></ion-icon>
