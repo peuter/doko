@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "dokosql1",
+    "password": "c0ck3r",
+    "database": "dokosql1",
+    "host": "jarvis",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "dokosql1",
+    "password": "c0ck3r",
+    "database": "dokosql1",
+    "host": "jarvis",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "dokosql1",
+    "password": "c0ck3r",
+    "database": "dokosql1",
+    "host": "localhost",
+    "dialect": "mysql"
+  }
+}

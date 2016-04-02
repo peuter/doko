@@ -1,0 +1,36 @@
+// http://ionicframework.com/docs/v2/theming/
+
+
+// App Shared Imports
+// --------------------------------------------------
+// These are the imports which make up the design of this app.
+// By default each design mode includes these shared imports.
+// App Shared Sass variables belong in app.variables.scss.
+
+@import 'theme',
+        'primeui-ng-all.min',
+        'font-awesome';
+
+// responsive design for table
+@media (max-width: 35em) {
+        .ui-datatable-reflow .ui-datatable-data tr.ui-widget-content td {
+                width: 50%;
+        }
+        .ui-datatable-reflow .ui-datatable-data tr.ui-widget-content td:first-child, .ui-datatable-reflow .ui-datatable-data tr.ui-widget-content td:nth-child(2) {
+                border-top: 1px solid #D5D5D5;
+                font-weight: bold;
+        }
+        .ui-datatable-reflow .ui-datatable-data tr.ui-widget-content td:nth-child(even) {
+                clear: none;
+        }
+        .ui-datatable-reflow .ui-datatable-data tr.ui-widget-content td:last-child {
+                padding-bottom: 1em;
+                border-bottom: 1px solid #D5D5D5;
+        }
+        .ui-datatable-reflow .ui-datatable-data td .ui-column-title {
+                min-width: 50%;
+        }
+        .ui-datatable-reflow tfoot tr {
+                display: none;
+        }
+}

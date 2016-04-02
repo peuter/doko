@@ -1,0 +1,28 @@
+<ion-navbar *navbar>
+  <ion-title>Ergebnisse
+    <p-spinner maxlength="4" size="1"
+               [(value)]="userData.year"
+               [min]="userData.getMinYear()"
+               [max]="userData.getMaxYear()"
+               (valueChange)="resultService.showYear($event)">
+    </p-spinner>
+  </ion-title>
+</ion-navbar>
+
+<ion-content padding class="results">
+  <p-dataTable [value]="resultService.resultData" sortField="date" sortOrder="-1" [responsive]="true"
+               [rows]="15" [paginator]="true" [footerRows]="resultService.summaryData"
+               (onRowSelect)="handleRowSelect($event)" selectionMode="single" [(selection)]="selectedEntry">
+    <p-column field="date" header="Datum" [sortable]="true">
+      <template #col #result="rowData">
+        {{result.date | string2Date}}
+      </template>
+    </p-column>
+    <p-column field="place" header="Ort"  [sortable]="true"></p-column>
+    <p-column *ngFor="#col of resultService.playerCols" [field]="col" [header]="col" [sortable]="true"></p-column>
+  </p-dataTable>
+  <button round (click)="gotToEditResult()">
+    <ion-icon name="add"></ion-icon>
+    Ergebnis eintragen
+  </button>
+</ion-content>

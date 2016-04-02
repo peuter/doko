@@ -1,0 +1,26 @@
+<ion-navbar *navbar>
+    <ion-title>Ergebnis</ion-title>
+</ion-navbar>
+
+<ion-content padding class="editresult">
+  test
+
+  <ion-item>
+    <ion-label stacked>Datum</ion-label>
+    <ion-input type="date" [(ngModel)]="date"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label stacked>Ort</ion-label>
+    <ion-select [(ngModel)]="place">
+      <ion-option *ngFor="#p of places" value="{{p}}">{{p}}</ion-option>
+    </ion-select>
+  </ion-item>
+  <ion-item *ngFor="#player of players">
+    <ion-label floating>{{player.nick}}</ion-label>
+    <ion-input type="number" [(ngModel)]="player.points"></ion-input>
+  </ion-item>
+  <button round (click)="save()">
+    <ion-icon name="cloud-done"></ion-icon>
+    Speichern
+  </button>
+</ion-content>
