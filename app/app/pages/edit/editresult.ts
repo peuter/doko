@@ -37,6 +37,11 @@ export class EditResult {
     } else {
       // init current dte
       this.date = this.getDateString(new Date());
+
+      // find closest place
+      resultService.findClosestPlace().subscribe(loc => {
+        this.place = loc['place'];
+      })
     }
   }
 

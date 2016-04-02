@@ -50,6 +50,12 @@ db.User.belongsTo(db.Player, {
   },
   targetKey: 'id'
 });
+db.Location.belongsTo(db.Player, {
+  foreignKey: {
+    name: 'player_id'
+  },
+  targetKey: 'id'
+});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

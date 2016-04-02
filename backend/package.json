@@ -12,6 +12,7 @@
     "debug": "~2.2.0",
     "express": "~4.13.1",
     "express-session": "^1.13.0",
+    "geolib": "^2.0.20",
     "jade": "~1.11.0",
     "method-override": "^2.3.5",
     "morgan": "~1.6.1",
@@ -20,6 +21,5 @@
     "sequelize": "^3.20.0",
     "sequelize-cli": "^2.3.1",
     "serve-favicon": "~2.3.0",
-    "sqlite3": "^3.1.2"
   }
 }

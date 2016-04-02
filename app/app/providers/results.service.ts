@@ -1,7 +1,9 @@
 import {Injectable, EventEmitter} from "angular2/core";
 import {Http, Headers} from "angular2/http";
 import {UserData} from './UserData';
+import {Observable} from 'rxjs';
 import 'rxjs/add/operator/map';
+import {Geolocation} from 'ionic-native';
 
 @Injectable()
 export class ResultService {
@@ -50,6 +52,30 @@ export class ResultService {
         this.summaryData[0]['columns'][index+1] = { footer: sum + money };
       });
     }
+  }
+
+  findClosestPlace() {
+    return Observable.fromPromise(Geolocation.getCurrentPosition()).flatMap(resp => {
+      console.log(resp);
+      var point = {
+        latitude: resp.coords.latitude,
+        longitude: resp.coords.longitude,
+        accuracy: resp.coords.accuracy
+      };
+      let headers = new Headers();
+      headers.append('Content-Type', 'application/json');
+      return this.http.post(this.userData.baseUrl + 'locations/', JSON.stringify(point), { headers: headers }).map(res => res.json());
+    });
+  }
+  
+  testFindClosestPlace() {
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    let point = {
+      latitude: 51.429415,
+      longitude: 8.275362
+    };
+    return this.http.post(this.userData.baseUrl + 'locations/', JSON.stringify(point), { headers: headers }).map(res => res.json());
   }
 
   getAll(year) {

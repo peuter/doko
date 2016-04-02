@@ -29,6 +29,7 @@ export class UserData {
   constructor(public events: Events, public http: Http) {
     this.storage = new Storage(LocalStorage);
     this.storage.get(this.USER_DATA).then(value => {
+      value = JSON.parse(value);
       if (value) {
         this.role = value.role;
       }
@@ -78,7 +79,7 @@ export class UserData {
           if (res.login === true) {
             this.authenticated = true;
             this.storage.set(this.BASIC_AUTH, "Basic "+btoa(username+":"+password));
-            this.storage.set(this.USER_DATA, res.user);
+            this.storage.set(this.USER_DATA, JSON.stringify(res.user));
             this.role = res.user['role'];
             this.events.publish('user:login');
           } else {
