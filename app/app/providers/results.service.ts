@@ -1,11 +1,11 @@
-import {Injectable} from "angular2/core";
+import {Injectable, EventEmitter} from "angular2/core";
 import {Http, Headers} from "angular2/http";
+import {UserData} from './UserData';
 import 'rxjs/add/operator/map';
 
 @Injectable()
 export class ResultService {
-
-  private baseUrl : string = 'http://hannibal:3000/api/results/';
+  private  update: EventEmitter<boolean> = new EventEmitter();
 
   private playerColMapping : Object = {};
 
@@ -19,7 +19,7 @@ export class ResultService {
   cache: Object = {};
   summaryCache: Object = {};
   
-  constructor(public http: Http) {
+  constructor(public http: Http, public userData: UserData) {
   }
 
   showYear(year, refresh:boolean = false) {
@@ -34,7 +34,7 @@ export class ResultService {
   }
 
   getAll(year) {
-      this.http.get(this.baseUrl + year)
+      this.http.get(this.userData.baseUrl + 'results/' + year)
         .map(res => res.json()).subscribe(
         res => this.aggregateResults(year, res),
         err => console.log("Error: " + err)
@@ -42,29 +42,78 @@ export class ResultService {
   }
 
   save(res) {
+    if (!this.userData.authenticated) {
+      return;
+    }
+    this.userData.getBasicAuth().then(auth => {
+      if (auth) {
+        let headers = new Headers();
 
-    let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization', auth);
 
-    headers.append('Content-Type', 'application/json');
+        if (res.id) {
+          // update appointment
+          this.http.put(this.userData.baseUrl + 'results/', JSON.stringify(res), {headers: headers})
+            .map(res => res.json()).subscribe(
+            res => this.handleUpdate(res),
+            err => console.log(err)
+          );
+        } else {
+          // create new appointment
+          this.http.post(this.userData.baseUrl + 'results/', JSON.stringify(res), {headers: headers})
+            .map(res => res.json()).subscribe(
+            res => this.handleUpdate(res),
+            err => this.handleError(err, "Saving results")
+          );
+        }
+      }
+    })
+  }
 
-    if (res.id) {
-      // update appointment
-      this.http.put(this.baseUrl, JSON.stringify(res), {headers: headers})
-        .map(res => res.json()).subscribe(
-        res => this.addResults(res),
-        err => console.log(err)
-      );
-    } else {
-      // create new appointment
-      this.http.post(this.baseUrl, JSON.stringify(res), {headers: headers})
-        .map(res => res.json()).subscribe(
-        res => this.addResults(res),
-        err => console.log(err)
-      );
+  delete(res) {
+    if (!this.userData.isAdmin()) {
+      return;
+    }
+    this.userData.getBasicAuth().then(auth => {
+      if (res.id && auth) {
+        let headers = new Headers();
+
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization', auth);
+
+        // delete appointment
+        this.http.delete(this.userData.baseUrl + 'results/' + res.id, {headers: headers})
+          .map(res => res.json()).subscribe(
+          res => this.handleUpdate(res),
+          err => console.log(err)
+        );
+      }
+    });
+  }
+
+  handleError(err, msg) {
+    console.log("ERROR: "+msg);
+    console.log(err);
+    switch (err.status) {
+      case 401:
+        console.log("401: Unauthorized");
+
+        // // quick hack
+        // let headers = new Headers();
+        // headers.append('Content-Type', 'application/json');
+        // this.http.post(this.baseUrl + 'users/',
+        //   JSON.stringify({username: 'tobiasb', nick: 'Tobias', password: 'c0ck3r'}),
+        //   { headers: headers }
+        // ).map(res => res.json()).subscribe(
+        //   res => console.log(res),
+        //   err => console.error(err)
+        // );
+        break;
     }
   }
 
-  addResults(res) {
+  handleUpdate(res) {
     var refreshYear = parseInt(res.refresh);
     if (refreshYear <= new Date().getFullYear() || refreshYear>=2006) {
       this.getAll(refreshYear);
@@ -99,5 +148,13 @@ export class ResultService {
     }
 
     this.showYear(year);
+  }
+
+  emitUpdateEvent() {
+    this.update.emit(true);
+  }
+
+  getUpdateEmitter() {
+    return this.update;
   }
 }

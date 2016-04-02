@@ -15,17 +15,35 @@ import {EditResult} from '../edit/editresult';
 export class Results {
 
   selectedEntry: any;
+
+  subscription: any;
   
   constructor(public resultService: ResultService, public userData: UserData, public nav: NavController) {
+    this.subscription = resultService.getUpdateEmitter().subscribe((update) => this.refreshTable(update));
+  }
+  
+  refreshTable(update: boolean) {
+    if (update) {
+      // TODO: call sortDefault() on datatable: Haw can we access the datatable here?
+
+    }
   }
 
   gotToEditResult() {
-    this.nav.push(EditResult);
+    if (this.userData.authenticated) {
+      this.nav.push(EditResult);
+    }
   }
 
   handleRowSelect(event) {
-    this.nav.push(EditResult, {
-      item: event.data
-    });
+    if (this.userData.authenticated) {
+      this.nav.push(EditResult, {
+        item: event.data
+      });
+    }
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 }

@@ -5,10 +5,13 @@ var bodyParser = require('body-parser');
 // Simulate DELETE and PUT (Express 4)
 var methodOverride = require('method-override');
 // PassportJS
-//import passport from 'passport';
+var passport = require('passport');
+var BasicStrategy = require('passport-http').BasicStrategy;
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var results = require('./routes/results');
+var users = require('./routes/users');
+var model = require('./models');
 
 var app = express();
 
@@ -26,6 +29,39 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 
 // ## Passport JS
 
+passport.use(new BasicStrategy(
+  function(username, password, callback) {
+    model.User.findOne({
+      where: {
+        username: username
+      }
+    }).then(function (user) {
+      if (!user) {
+        return callback(null, false);
+      }
+
+      user.verifyPassword(password, function(err, isMatch) {
+        if (err) {
+          return callback(err);
+        }
+
+        if (!isMatch) {
+          return callback(null, false);
+        }
+
+        // Success
+        return callback(null, user);
+      });
+    }).catch(function(err) {
+      return callback(err);
+    });
+  },
+  function(params, done) {
+    // validate nonces as necessary
+    done(null, true)
+  }
+));
+
 // Session secret
 // app.use(session({
 //
@@ -35,17 +71,19 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 //
 //   saveUninitialized : true
 // }));
-// app.use(passport.initialize());
+app.use(passport.initialize());
 //
 // // Persistent login sessions
 // app.use(passport.session());
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
   next();
 });
 
+app.use('/api/', users);
 app.use('/api/results', results);
 
 // catch 404 and forward to error handler

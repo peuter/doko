@@ -19,6 +19,10 @@
     <ion-label floating>{{player.nick}}</ion-label>
     <ion-input type="number" [(ngModel)]="player.points"></ion-input>
   </ion-item>
+  <button *ngIf="id" round (click)="delete()">
+    <ion-icon name="trash"></ion-icon>
+    Löschen
+  </button>
   <button round (click)="save()">
     <ion-icon name="cloud-done"></ion-icon>
     Speichern

@@ -40,6 +40,14 @@ db.Points.belongsTo(db.Appointment, {
   foreignKey: {
     name: 'appointment_id'
   },
+  targetKey: 'id',
+  onDelete: 'cascade', 
+  hooks:true
+});
+db.User.belongsTo(db.Player, {
+  foreignKey: {
+    name: 'player_id'
+  },
   targetKey: 'id'
 });
 

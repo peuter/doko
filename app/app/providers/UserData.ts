@@ -7,35 +7,53 @@
 
 import {Injectable} from 'angular2/core';
 import {Storage, LocalStorage, Events} from 'ionic-angular';
-import {ResultService} from './results.service';
-
+import {Http, Headers} from "angular2/http";
+import 'rxjs/add/operator/map';
 
 @Injectable()
 export class UserData {
-  
   private storage : Storage;
-  private events : Events;
-  private resultService : ResultService;
-  private HAS_LOGGED_IN : string = "hasLoggedIn";
+  
+  private BASIC_AUTH : string;
+  private USER_DATA: string = "userData";
+  private role : string;
   private maxYear : number = new Date().getFullYear();
   private minYear : number = 2006;
 
   year : number = new Date().getFullYear();
-  
-  static get parameters(){
-    return [[Events]];
-  }
 
-  constructor(events: Events, resultService: ResultService) {
+  authenticated : boolean = false;
+
+  baseUrl : string = 'http://hannibal:3000/api/';
+
+  constructor(public events: Events, public http: Http) {
     this.storage = new Storage(LocalStorage);
-    this.events = events;
-    this.resultService = resultService;
+    this.storage.get(this.USER_DATA).then(value => {
+      if (value) {
+        this.role = value.role;
+      }
+      this.authenticated = this.hasLoggedIn();
+    });
   }
 
   setYear(year) {
     if (year >= this.minYear && year <= this.maxYear) {
       this.year = year;
     }
+  }
+  
+  getBasicAuth() {
+    return this.storage.get(this.BASIC_AUTH);
+  }
+  
+  getUserData() {
+    return this.storage.get(this.USER_DATA).then(value => {
+      return value;
+    });
+  }
+  
+  isAdmin() {
+    return this.role === 'admin';
   }
 
   getYear() {
@@ -51,24 +69,39 @@ export class UserData {
   }
 
   login(username, password) {
-    this.storage.set(this.HAS_LOGGED_IN, true);
-    this.events.publish('user:login');
-  }
-
-  signup(username, password) {
-    this.storage.set(this.HAS_LOGGED_IN, true);
-    this.events.publish('user:signup');
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    this.http.post(this.baseUrl+"/users/login", JSON.stringify({username: username, password: password}), { headers: headers })
+      .map(res => res.json())
+      .subscribe(
+        res => {
+          if (res.login === true) {
+            this.authenticated = true;
+            this.storage.set(this.BASIC_AUTH, "Basic "+btoa(username+":"+password));
+            this.storage.set(this.USER_DATA, res.user);
+            this.role = res.user['role'];
+            this.events.publish('user:login');
+          } else {
+            console.log(res.error);
+          }
+        },
+        err => {
+          console.log(err);
+          
+        }
+      );
   }
 
   logout() {
-    this.storage.remove(this.HAS_LOGGED_IN);
+    this.storage.remove(this.BASIC_AUTH);
+    this.storage.remove(this.USER_DATA);
+    this.authenticated = false;
+    this.role = null;
     this.events.publish('user:logout');
   }
 
   // return a promise
   hasLoggedIn() {
-    return this.storage.get(this.HAS_LOGGED_IN).then((value) => {
-      return value;
-    });
+    return !!this.role;
   }
 }

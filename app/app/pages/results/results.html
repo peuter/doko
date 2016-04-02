@@ -10,7 +10,7 @@
 </ion-navbar>
 
 <ion-content padding class="results">
-  <p-dataTable [value]="resultService.resultData" sortField="date" sortOrder="-1" [responsive]="true"
+  <p-dataTable #dt [value]="resultService.resultData" sortField="date" sortOrder="-1" [responsive]="true"
                [rows]="15" [paginator]="true" [footerRows]="resultService.summaryData"
                (onRowSelect)="handleRowSelect($event)" selectionMode="single" [(selection)]="selectedEntry">
     <p-column field="date" header="Datum" [sortable]="true">
@@ -21,7 +21,7 @@
     <p-column field="place" header="Ort"  [sortable]="true"></p-column>
     <p-column *ngFor="#col of resultService.playerCols" [field]="col" [header]="col" [sortable]="true"></p-column>
   </p-dataTable>
-  <button round (click)="gotToEditResult()">
+  <button *ngIf="userData.authenticated" round (click)="gotToEditResult()">
     <ion-icon name="add"></ion-icon>
     Ergebnis eintragen
   </button>

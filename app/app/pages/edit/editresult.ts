@@ -6,7 +6,6 @@
  */
 import {Page, NavController, NavParams} from 'ionic-angular';
 import {ResultService} from '../../providers/results.service';
-import {Results} from '../results/results';
 
 @Page({
   templateUrl: 'build/pages/edit/result.html'
@@ -42,6 +41,11 @@ export class EditResult {
 
   getDateString(date) {
     return date.getFullYear()+"-"+('00'+(date.getMonth()+1)).slice(-2)+"-"+('00'+date.getDate()).slice(-2);
+  }
+
+  delete() {
+    this.resultService.delete({id: this.id});
+    this.nav.pop(EditResult);
   }
   
   save() {

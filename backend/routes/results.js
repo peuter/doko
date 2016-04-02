@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
 var model = require('../models');
+var passport = require('passport');
 
 /* GET users listing. */
 router.route('/')
 
   // add a new result
-  .post(function(req, res) {
+  .post(passport.authenticate('basic', { session: false }),
+    function(req, res) {
 
     var year = new Date(req.body.date).getFullYear();
     
@@ -129,6 +131,19 @@ router.route('/')
     });
   });
 
+router.delete('/:id', passport.authenticate('basic', { session: false }),
+  function(req, res) {
+    model.Appointment.findById(parseInt(req.params.id, 10)).then(function(appointment) {
+      if (appointment) {
+        var year = appointment.date.getFullYear();
+        appointment.destroy();
+        res.json({refresh: year});
+      } else {
+        res.json({refresh: false});
+      }
+    });
+  }
+);
 
 router.get('/:year', function(req, res) {
   model.Points.findAll({
