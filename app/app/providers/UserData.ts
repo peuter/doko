@@ -16,7 +16,7 @@ export class UserData {
   
   private BASIC_AUTH : string;
   private USER_DATA: string = "userData";
-  private role : string;
+  private user : Object;
   private maxYear : number = new Date().getFullYear();
   private minYear : number = 2006;
 
@@ -24,15 +24,12 @@ export class UserData {
 
   authenticated : boolean = false;
 
-  baseUrl : string = 'http://hannibal:3000/api/';
+  baseUrl : string = 'http://doko.tbraeutigam.de:3000/api/';
 
   constructor(public events: Events, public http: Http) {
     this.storage = new Storage(LocalStorage);
     this.storage.get(this.USER_DATA).then(value => {
-      value = JSON.parse(value);
-      if (value) {
-        this.role = value.role;
-      }
+      this.user = JSON.parse(value);
       this.authenticated = this.hasLoggedIn();
     });
   }
@@ -48,13 +45,11 @@ export class UserData {
   }
   
   getUserData() {
-    return this.storage.get(this.USER_DATA).then(value => {
-      return value;
-    });
+    return this.user;
   }
   
   isAdmin() {
-    return this.role === 'admin';
+    return this.user && this.user['role'] === 'admin';
   }
 
   getYear() {
@@ -80,7 +75,7 @@ export class UserData {
             this.authenticated = true;
             this.storage.set(this.BASIC_AUTH, "Basic "+btoa(username+":"+password));
             this.storage.set(this.USER_DATA, JSON.stringify(res.user));
-            this.role = res.user['role'];
+            this.user = res.user;
             this.events.publish('user:login');
           } else {
             console.log(res.error);
@@ -97,12 +92,12 @@ export class UserData {
     this.storage.remove(this.BASIC_AUTH);
     this.storage.remove(this.USER_DATA);
     this.authenticated = false;
-    this.role = null;
+    this.user = null;
     this.events.publish('user:logout');
   }
 
   // return a promise
   hasLoggedIn() {
-    return !!this.role;
+    return this.user && !!this.user['role'];
   }
 }

@@ -19,7 +19,6 @@ export class ProfilePage {
   // When the page loads, we want the Login segment to be selected
   authType: string = "login";
   error: string;
-  user: string;
 
   constructor(public userData: UserData, public nav: NavController) {
   }

@@ -60,7 +60,7 @@
   <ion-content>
     <div *ngIf="userData.authenticated">
       <div padding>
-        <h1>Hallo, {{ userData.getUserData().nick }}</h1>
+        <h1>Hallo, {{ userData.getUserData().name }}</h1>
         <button block (click)="logout()">Logout</button>
       </div>
     </div>
