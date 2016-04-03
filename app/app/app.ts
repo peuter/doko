@@ -1,5 +1,5 @@
 import 'es6-shim';
-import {App, Platform} from 'ionic-angular';
+import {App, Platform, IonicApp} from 'ionic-angular';
 import {StatusBar} from 'ionic-native';
 import {TabsPage} from './pages/tabs/tabs';
 import {UserData} from './providers/UserData';
@@ -23,6 +23,12 @@ export class MyApp {
       if (typeof StatusBar !== 'undefined') {
         StatusBar.styleDefault();
       }
+      var push = new IonicApp.Push({});
+
+      push.register(function(token) {
+        // Log out your device token (Save this!)
+        console.log("Got Token:",token.token);
+      });
     });
   }
 }

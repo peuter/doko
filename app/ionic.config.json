@@ -1,6 +1,6 @@
 {
   "name": "Doko Hirschberg",
-  "app_id": "org.tb.doko",
   "v2": true,
-  "typescript": true
+  "typescript": true,
+  "app_id": "39420f16"
 }

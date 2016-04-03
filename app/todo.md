@@ -6,6 +6,7 @@
  * Gesamtliste (Hall-of-fame)
  * Alternative Chart-Engine checken C3/D3
  * Push-Notification für neue Spielergebnisse
+ * Zusammenfassung über der Ergebnisliste nur auf kleinen Bildschirmen anzeigen
  
 ### Done:
 * Schnittanzeige in Ergebnisliste (siehe alte Seite)
